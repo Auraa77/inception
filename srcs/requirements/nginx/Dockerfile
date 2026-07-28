@@ -5,9 +5,12 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /etc/nginx/sites-enabled \
+    && ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
-COPY ./conf/conf.d /etc/nginx/conf.d
+COPY ./conf/sites-available/default /etc/nginx/sites-available/default
 
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/nginx.key \
