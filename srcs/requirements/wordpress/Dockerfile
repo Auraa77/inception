@@ -1,9 +1,23 @@
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
-    php-fpm \
-    php-mysql \
+    php8.2-fpm \
+    php8.2-mysql \
     curl \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-CMD [sh]
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
+
+COPY ./conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+
+RUN mkdir -p /var/www/html /run/php && \
+    chown -R www-data:www-data /var/www/html
+
+COPY ./tools/script.sh /usr/local/bin/script.sh
+
+RUN chmod +x /usr/local/bin/script.sh
+
+ENTRYPOINT ["/usr/local/bin/script.sh"]
